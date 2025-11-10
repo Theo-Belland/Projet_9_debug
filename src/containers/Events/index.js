@@ -11,7 +11,7 @@ const PER_PAGE = 9;
 
 const EventList = () => {
   const { data, error } = useData();
-  const [type, setType] = useState(); // undefined = Toutes
+  const [type, setType] = useState(); // undefined = toutes catégories
   const [currentPage, setCurrentPage] = useState(1);
 
   const events = Array.isArray(data?.events) ? data.events : [];
@@ -22,7 +22,7 @@ const EventList = () => {
     [events]
   );
 
-  // Filtrage dynamique (sans muter la source)
+  // Filtrage dynamique
   const filteredEvents = useMemo(
     () =>
       !type
@@ -39,7 +39,6 @@ const EventList = () => {
   const start = (currentPage - 1) * PER_PAGE;
   const pageItems = filteredEvents.slice(start, start + PER_PAGE);
 
-  // Pages (sans index comme key)
   const pages = useMemo(
     () => Array.from({ length: pageCount }, (_, i) => i + 1),
     [pageCount]
@@ -65,7 +64,6 @@ const EventList = () => {
             label="Catégories"
           />
 
-          {/* ⬇️ Conteneur avec la bonne classe pour 3 cartes par ligne */}
           <div id="events" className="ListContainer">
             {pageItems.map((event) => (
               <Modal
@@ -74,11 +72,11 @@ const EventList = () => {
               >
                 {({ setIsOpened }) => (
                   <EventCard
-                    imageSrc={event.cover}
-                    imageAlt={event.title}
-                    date={new Date(event.date)}
-                    title={event.title}
-                    label={event.type}
+                    imageSrc={event.cover || ""} // Toujours défini
+                    imageAlt={event.title || "image"} // fallback
+                    date={event.date ? new Date(event.date) : new Date()}
+                    title={event.title || "Événement"} // fallback
+                    label={event.type || "Événement"} // ⚠ required
                     onClick={() => setIsOpened(true)}
                   />
                 )}
@@ -88,7 +86,11 @@ const EventList = () => {
 
           <div className="Pagination">
             {pages.map((p) => (
-              <a key={`page-${p}`} href="#events" onClick={() => setCurrentPage(p)}>
+              <a
+                key={`page-${p}`}
+                href="#events"
+                onClick={() => setCurrentPage(p)}
+              >
                 {p}
               </a>
             ))}
